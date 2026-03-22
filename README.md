@@ -1,103 +1,127 @@
-Criar um tradutor de artigos técnicos utilizando os serviços de IA do Azure envolve várias etapas, desde a configuração dos serviços até a implementação do processo de tradução. Abaixo, apresento um passo a passo detalhado:
+# Tradutor de Artigos Tecnicos com Azure AI
 
-Passo 1: Criar uma Conta do Azure
-Acesse o Portal do Azure:
+Este repositorio deixou de ser apenas um tutorial textual e virou um MVP executavel para traducao de artigos tecnicos. O projeto agora tem uma API em FastAPI, preserva blocos de codigo e inline code, aceita glossario customizado, suporta termos a preservar e integra opcionalmente com o Azure Translator. Quando as credenciais nao estao configuradas, ele entra em modo local de preview para demonstrar o pipeline sem esconder a limitacao.
 
-Visite portal.azure.com.
-Faça login ou crie uma conta se você não tiver uma.
-Criar um Novo Recurso:
+## O que o projeto entrega
 
-Clique em "Criar um recurso".
-Pesquise por "Azure Cognitive Services" e clique em "Criar".
-Configurar o Serviço:
+- API REST para traducao de artigos tecnicos
+- preservacao de blocos de codigo e inline code
+- glossario customizado por requisicao
+- lista de termos que nao devem ser traduzidos
+- chunking de markdown para textos longos
+- integracao opcional com Azure Translator
+- modo `local_preview` para demonstracao sem credenciais
+- testes automatizados
+- Dockerfile para execucao local
 
-Escolha o tipo de recurso apropriado (por exemplo, "Tradutor").
-Preencha as informações necessárias, como Nome, Assinatura, Grupo de Recursos e Região.
-Selecione o preço apropriado conforme suas necessidades.
-Revisar e Criar:
+## Arquitetura do fluxo
 
-Revise as configurações e clique em "Criar".
-Passo 2: Configurar o Serviço de Tradução
-Obtenha as Credenciais:
-Após a criação, vá para o recurso do tradutor.
-Na seção "Chaves e Endpoint", anote a chave de API e o endpoint. Você precisará disso para se conectar ao serviço.
-Passo 3: Preparar o Ambiente de Desenvolvimento
-Configurar o Ambiente:
+```mermaid
+flowchart LR
+    A["Artigo tecnico em Markdown"] --> B["Protecao de codigo"]
+    B --> C["Chunking"]
+    C --> D["Glossario e preserve_terms"]
+    D --> E["Azure Translator ou local_preview"]
+    E --> F["Restauracao do codigo"]
+    F --> G["Artigo traduzido"]
+```
 
-Instale uma linguagem de programação adequada (como Python, C#, etc.) e as bibliotecas necessárias.
-Por exemplo, para Python, você pode usar requests ou http.client.
-Instalar Bibliotecas:
+## Endpoints
 
-Se estiver usando Python, instale a biblioteca necessária:
-bash
-Copiar código
-pip install requests
-Passo 4: Implementar o Código de Tradução
-Configurar o Código:
+### `GET /health`
 
-Crie um script para enviar uma solicitação ao serviço de tradução. Aqui está um exemplo em Python:
-python
-Copiar código
-import requests
-import json
+Retorna o status da API.
 
-# Substitua pelos valores correspondentes
-subscription_key = 'SUA_CHAVE_DE_API'
-endpoint = 'SEU_ENDPOINT'
-location = 'LOCALIZAÇÃO'  # por exemplo, 'westus'
+### `POST /api/translate/article`
 
-# Função para traduzir texto
-def traduzir_texto(texto, idioma_destino):
-    path = '/translate?api-version=3.0'
-    params = f'&to={idioma_destino}'
-    url = endpoint + path + params
+Traduz um artigo tecnico em texto puro ou markdown.
 
-    headers = {
-        'Ocp-Apim-Subscription-Key': subscription_key,
-        'Ocp-Apim-Subscription-Region': location,
-        'Content-Type': 'application/json'
-    }
+Exemplo de payload:
 
-    body = [{'text': texto}]
-    response = requests.post(url, headers=headers, json=body)
-    return response.json()
+```json
+{
+  "title": "Deploying a FastAPI Service",
+  "content": "# Deploying a FastAPI Service\n\nThe service exposes an endpoint for authentication and cache invalidation.\n\n```python\ndef authenticate_user(token: str) -> bool:\n    return token.startswith(\"Bearer \")\n```\n\nUse `docker compose up` to start the environment.\n",
+  "target_language": "pt-br",
+  "source_language": "en",
+  "glossary": {
+    "authentication": "autenticacao",
+    "cache invalidation": "invalidacao de cache",
+    "endpoint": "endpoint"
+  },
+  "preserve_terms": [
+    "FastAPI",
+    "docker compose up"
+  ]
+}
+```
 
-# Exemplo de uso
-texto_a_traduzir = "Este é um artigo técnico sobre IA."
-resultado = traduzir_texto(texto_a_traduzir, 'en')  # Traduzir para inglês
+## Como executar localmente
 
-print(json.dumps(resultado, ensure_ascii=False, indent=4))
-Executar o Código:
+### Com Python
 
-Salve e execute o script para ver a tradução do texto.
-Passo 5: Processar Artigos Técnicos
-Estruturar os Dados:
+```bash
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
 
-Você pode ler os artigos técnicos a partir de arquivos (como PDF ou Word) ou de um banco de dados.
-Use bibliotecas como PyPDF2 ou python-docx para extrair texto de PDFs ou documentos do Word, respectivamente.
-Traduzir o Texto Extraído:
+### Com Docker
 
-Passe o texto extraído para a função de tradução que você criou e armazene o resultado.
-Passo 6: Armazenar e Usar a Tradução
-Armazenar Resultados:
+```bash
+docker build -t tradutor-azureai .
+docker run -p 8000:8000 tradutor-azureai
+```
 
-Salve as traduções em um banco de dados ou em arquivos de texto para referência futura.
-Criar uma Interface:
+## Configuracao do Azure Translator
 
-Se necessário, desenvolva uma interface de usuário onde os usuários possam enviar artigos técnicos para tradução e visualizar os resultados.
-Passo 7: Testar e Ajustar
-Realizar Testes:
+Crie um recurso de Translator no Azure e configure:
 
-Teste a aplicação com vários artigos técnicos para verificar a precisão e a adequação das traduções.
-Ajustar conforme necessário:
+- `AZURE_TRANSLATOR_KEY`
+- `AZURE_TRANSLATOR_ENDPOINT`
+- `AZURE_TRANSLATOR_REGION`
 
-Com base no feedback, faça ajustes no código, como melhorar o tratamento de erros e a interface do usuário.
-Passo 8: Monitorar e Manter
-Monitorar o Uso:
+Exemplo de base em [.env.example](C:/Users/vitor/OneDrive/Documentos/Playground/repo-tradutor-azureai/.env.example).
 
-Acompanhe o uso do serviço através do portal do Azure para evitar exceder limites ou custos inesperados.
-Atualizar Regularmente:
+Se essas variaveis nao estiverem presentes, a API responde em modo `local_preview`, que serve para demonstrar o pipeline de preprocessamento e pos-processamento, mas nao substitui uma traducao real da nuvem.
 
-Mantenha o sistema atualizado com as melhores práticas e as atualizações do Azure.
-Conclusão
-Esse passo a passo fornece um guia abrangente para criar um tradutor de artigos técnicos usando Azure AI. Você pode expandir essa implementação para incluir mais funcionalidades, como tradução de múltiplos idiomas ou suporte a formatos de arquivo variados, conforme suas necessidades.
+## Estrutura do projeto
+
+- `app/main.py`: endpoints da API
+- `app/translator.py`: integracao com Azure Translator e fallback local
+- `app/segmenter.py`: protecao de codigo e chunking
+- `app/models.py`: contratos da API
+- `tests/test_translator.py`: testes do fluxo principal
+- `docs/translation-strategy.md`: explicacao da estrategia de traducao
+- `examples/sample-request.json`: payload pronto para teste
+
+## Referencias oficiais
+
+Para alinhar o projeto com a forma atual de uso do Azure, usei como base documentacao oficial da Microsoft sobre Translator e Text Translation:
+
+- [Quickstart: translate text programmatically](https://learn.microsoft.com/en-us/azure/ai-services/translator/text-translation/quickstart/rest-api)
+- [Use Azure Translator REST APIs](https://learn.microsoft.com/en-us/azure/ai-services/translator/text-translation/how-to/use-rest-api)
+- [Translator v3.0 Translate method](https://learn.microsoft.com/azure/ai-services/translator/reference/v3-0-translate)
+- [Dynamic Dictionary](https://learn.microsoft.com/en-us/azure/ai-services/translator/text-translation/how-to/use-dynamic-dictionary)
+
+Observacao: o projeto usa a ideia de dynamic dictionary para glossario de termos tecnicos. Pela documentacao oficial, esse recurso deve ser usado com parcimonia e exige `from` explicito, alem de envolver ingles e outro idioma suportado.
+
+## Validacao
+
+```bash
+pytest
+```
+
+Os testes cobrem:
+
+- protecao e restauracao de blocos de codigo
+- chunking de markdown
+- aplicacao de glossario no modo local
+- resposta HTTP do endpoint principal
+
+## Proximos passos
+
+- adicionar upload de arquivo `.md` e `.txt`
+- gerar lado a lado original versus traducao
+- salvar memoria de traducao por projeto
+- incluir interface web simples
+- adicionar suporte a DOCX e PDF

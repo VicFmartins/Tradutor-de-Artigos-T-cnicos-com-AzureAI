@@ -1,0 +1,15 @@
+{
+  "title": "Deploying a FastAPI Service",
+  "content": "# Deploying a FastAPI Service\n\nThe service exposes an endpoint for authentication and cache invalidation.\n\n```python\ndef authenticate_user(token: str) -> bool:\n    return token.startswith(\"Bearer \")\n```\n\nUse `docker compose up` to start the environment.\n",
+  "target_language": "pt-br",
+  "source_language": "en",
+  "glossary": {
+    "authentication": "autenticacao",
+    "cache invalidation": "invalidacao de cache",
+    "endpoint": "endpoint"
+  },
+  "preserve_terms": [
+    "FastAPI",
+    "docker compose up"
+  ]
+}
