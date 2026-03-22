@@ -1,7 +1,5 @@
 # Tradutor de Artigos Tecnicos com Azure AI
 
-Este repositorio deixou de ser apenas um tutorial textual e virou um MVP executavel para traducao de artigos tecnicos. O projeto agora tem uma API em FastAPI, preserva blocos de codigo e inline code, aceita glossario customizado, suporta termos a preservar e integra opcionalmente com o Azure Translator. Quando as credenciais nao estao configuradas, ele entra em modo local de preview para demonstrar o pipeline sem esconder a limitacao.
-
 ## O que o projeto entrega
 
 - API REST para traducao de artigos tecnicos
