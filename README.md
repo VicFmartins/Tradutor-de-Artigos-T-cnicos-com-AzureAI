@@ -78,7 +78,7 @@ Crie um recurso de Translator no Azure e configure:
 - `AZURE_TRANSLATOR_ENDPOINT`
 - `AZURE_TRANSLATOR_REGION`
 
-Exemplo de base em [.env.example](C:/Users/vitor/OneDrive/Documentos/Playground/repo-tradutor-azureai/.env.example).
+Exemplo de base em [.env.example](.env.example).
 
 Se essas variaveis nao estiverem presentes, a API responde em modo `local_preview`, que serve para demonstrar o pipeline de preprocessamento e pos-processamento, mas nao substitui uma traducao real da nuvem.
 
